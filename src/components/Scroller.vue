@@ -13,6 +13,7 @@
       :style="scrollerContentStyle"
       @touchstart="scrollerContentTouchStart"
       @dragstart="(e) => e.preventDefault()"
+      @transitionend="isInTransition = false"
     >
       <slot></slot>
     </div>
@@ -272,10 +273,11 @@ export default class Scroller extends Vue {
     })
   }
   get scrollerContentStyle (): any {
-    let { contentScrollTop, contentScrollLeft, isEventActive } = this
+    let { contentScrollTop, contentScrollLeft, isEventActive, isInTransition } = this
 
     return Object.assign({ position: 'relative' }, {
       transform: `translate3d(${Math.round(contentScrollLeft)}px, ${Math.round(contentScrollTop)}px, 0)`,
+      transition: isInTransition ? 'transform .4s cubic-bezier(.25, .46, .45, .94) 0s' : '',
     })
   }
 
@@ -497,10 +499,9 @@ export default class Scroller extends Vue {
   touchStartContentPositionX: number = 0
   touchStartContentPositionY: number = 0
   touchEventTime: number = 0
+  isInTransition: boolean = false
   bouncingAnimateCancelHandleX: Function = () => {}
   bouncingAnimateCancelHandleY: Function = () => {}
-  translationAnimateCancelHandleX: Function = () => {}
-  translationAnimateCancelHandleY: Function = () => {}
 
   scrollerContentTouchStart (e: TouchEvent): void {
     let { enableTouchMove } = this.mixingOption
@@ -509,8 +510,7 @@ export default class Scroller extends Vue {
       let { contentScrollLeft, contentScrollTop,
         bouncingAnimateCancelHandleX,
         bouncingAnimateCancelHandleY,
-        translationAnimateCancelHandleX,
-        translationAnimateCancelHandleY } = this
+        setTranslateX, setTranslateY } = this
 
       this.isEventActive = true
       this.touchStartFingerPositionX = pageX
@@ -518,11 +518,8 @@ export default class Scroller extends Vue {
       this.touchStartContentPositionX = contentScrollLeft
       this.touchStartContentPositionY = contentScrollTop
       this.touchEventTime = e.timeStamp
-
       bouncingAnimateCancelHandleX()
       bouncingAnimateCancelHandleY()
-      translationAnimateCancelHandleX()
-      translationAnimateCancelHandleY()
     }
   }
   scrollerContentTouchMove (e: TouchEvent): void {
@@ -570,7 +567,6 @@ export default class Scroller extends Vue {
           setTranslateY(translateY, limitedLength)
         }
       }
-
       this.touchEndFingerPositionX = pageX
       this.touchEndFingerPositionY = pageY
     }
@@ -580,7 +576,7 @@ export default class Scroller extends Vue {
     let { enableTouchMove } = mixingOption
 
     if (enableTouchMove && isEventActive) {
-      let { touchEventTime, mixingOption,
+      let { touchEventTime,
         isOverFlowX, isOverFlowY,
         touchStartFingerPositionX,
         touchStartFingerPositionY,
@@ -589,7 +585,6 @@ export default class Scroller extends Vue {
         touchStartContentPositionX,
         touchStartContentPositionY,
         setTranslateX, setTranslateY,
-        contentScrollWidth, contentScrollHeight,
         bouncing } = this
 
       this.isEventActive = false
@@ -599,32 +594,12 @@ export default class Scroller extends Vue {
       let distanceY = touchEndFingerPositionY - touchStartFingerPositionY
       if (timeDistance < 300) {
         if (isOverFlowX && Math.abs(distanceX) > 100) {
-          distanceX *= 4
-
-          let Animate = animate({
-            end: distanceX,
-            time: 350,
-            fps: 120,
-            callback: (currentStep: number) => {
-              setTranslateX(touchStartContentPositionX + currentStep)
-            }
-          })
-
-          this.translationAnimateCancelHandleX = Animate.cancel
+          this.isInTransition = true
+          setTranslateX(touchStartContentPositionX + distanceX * 3)
         }
         if (isOverFlowY && Math.abs(distanceY) > 100) {
-          distanceY *= 4
-
-          let Animate = animate({
-            end: distanceY,
-            time: 350,
-            fps: 120,
-            callback: (currentStep: number) => {
-              setTranslateY(touchStartContentPositionY + currentStep)
-            }
-          })
-
-          this.translationAnimateCancelHandleY = Animate.cancel
+          this.isInTransition = true
+          setTranslateY(touchStartContentPositionY + distanceY * 3)
         }
       } else {
         bouncing()
