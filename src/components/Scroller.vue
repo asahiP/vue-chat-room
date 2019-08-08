@@ -283,6 +283,8 @@ export default class Scroller extends Vue {
 
   getComputedStyle (): void {
     let { scrollerContainer, scrollerContent, scrollBarX, scrollBarY }: any = this.$refs
+    let { sliderScrollWidth, sliderScrollHeight,
+      sliderOffsetLeft, sliderOffsetTop } = this
 
     this.containerWidth = scrollerContainer.offsetWidth
     this.containerHeight = scrollerContainer.offsetHeight
@@ -293,11 +295,22 @@ export default class Scroller extends Vue {
 
     let { containerWidth, contentWidth, containerHeight, contentHeight, mixingOption } = this
     let { minScrollSliderSize } = mixingOption
-    let scrollerSliderWidth = (containerWidth / contentWidth) * containerWidth
-    let scrollerSliderHeight = (containerHeight / contentHeight) * containerHeight
+    let scrollerSliderWidth = (containerWidth / contentWidth || 0) * containerWidth
+    let scrollerSliderHeight = (containerHeight / contentHeight || 0) * containerHeight
     
     this.sliderWidth = Math.max(scrollerSliderWidth, minScrollSliderSize)
     this.sliderHeight = Math.max(scrollerSliderHeight, minScrollSliderSize)
+
+    let { sliderScrollWidth: newSliderScrollWidth,
+      sliderScrollHeight: newSliderScrollHeight,
+      setScrollLeft, setScrollTop } = this
+    
+    if (sliderScrollWidth - newSliderScrollWidth !== 0) {
+      setScrollLeft((sliderOffsetLeft / sliderScrollWidth || 0) * newSliderScrollWidth)
+    }
+    if (sliderScrollHeight - newSliderScrollHeight !== 0) {
+      setScrollTop((sliderOffsetTop / sliderScrollHeight || 0) * newSliderScrollHeight)
+    }
   }
 
   setScrollTop (newVal: number): void {
@@ -351,7 +364,7 @@ export default class Scroller extends Vue {
     let self = this
 
     window.requestAnimationFrame(() => {
-      self.sliderOffsetTop = contentScrollTop / contentScrollHeight * sliderScrollHeight * -1
+      self.sliderOffsetTop = (contentScrollTop / contentScrollHeight || 0) * sliderScrollHeight * -1
     })
   }
 
@@ -360,7 +373,7 @@ export default class Scroller extends Vue {
     let self = this
 
     window.requestAnimationFrame(() => {
-      self.sliderOffsetLeft = contentScrollLeft / contentScrollWidth * sliderScrollWidth * -1
+      self.sliderOffsetLeft = (contentScrollLeft / contentScrollWidth || 0) * sliderScrollWidth * -1
     })
   }
 
@@ -369,7 +382,7 @@ export default class Scroller extends Vue {
     let self = this
 
     window.requestAnimationFrame(() => {
-      self.contentScrollLeft = sliderOffsetLeft / sliderScrollWidth * contentScrollWidth * -1
+      self.contentScrollLeft = (sliderOffsetLeft / sliderScrollWidth || 0) * contentScrollWidth * -1
     })
   }
 
@@ -378,7 +391,7 @@ export default class Scroller extends Vue {
     let self = this
 
     window.requestAnimationFrame(() => {
-      self.contentScrollTop = sliderOffsetTop / sliderScrollHeight * contentScrollHeight * -1
+      self.contentScrollTop = (sliderOffsetTop / sliderScrollHeight || 0) * contentScrollHeight * -1
     })
   }
 
@@ -513,8 +526,8 @@ export default class Scroller extends Vue {
         setTranslateX, setTranslateY } = this
 
       this.isEventActive = true
-      this.touchStartFingerPositionX = pageX
-      this.touchStartFingerPositionY = pageY
+      this.touchStartFingerPositionX = this.touchEndFingerPositionX = pageX
+      this.touchStartFingerPositionY = this.touchEndFingerPositionY = pageY
       this.touchStartContentPositionX = contentScrollLeft
       this.touchStartContentPositionY = contentScrollTop
       this.touchEventTime = e.timeStamp
