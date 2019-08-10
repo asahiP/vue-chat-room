@@ -149,7 +149,7 @@
         </Scroller>
       </div>
       <div class="layout-right-chat-textarea">
-        <textarea class="chat-textarea" v-model="textArea" ref="textArea"></textarea>
+        <textarea class="chat-textarea" v-model="textArea" ref="textArea" @keypress.ctrl.enter="sendText"></textarea>
       </div>
       <div class="layout-right-menubar">
         <div class="menubar-left-container">
@@ -1335,6 +1335,8 @@ $public-font-family: (Arial, Helvetica, sans-serif, 'Source Han Sans', 'Noto San
       align-items: flex-start;
       flex: 0 0 80%;
 
+      margin: 0 .4rem;
+
       @media all and (orientation: portrait) {
         flex: 0 0 70%;
       }
@@ -1416,8 +1418,6 @@ $public-font-family: (Arial, Helvetica, sans-serif, 'Source Han Sans', 'Noto San
       white-space: pre-wrap;
       word-break: break-word;
       text-align: center;
-
-      background: rgb(255, 255, 255)
     }
   }
   .layout-right-chat-textarea {

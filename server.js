@@ -155,7 +155,7 @@ chat.on('connection', function (socket) {
             name: userName,
             date: Date.now(),
             type: 'notice',
-            msg: userName + " entered room. Active: " + active + " => " + (active + 1) + ".",
+            msg: userName + " entered room",
             roomName: roomName
         });
     });
@@ -176,7 +176,7 @@ chat.on('connection', function (socket) {
                             name: userName,
                             date: Date.now(),
                             type: 'notice',
-                            msg: userName + " left room. Active: " + active + " => " + (active - 1) + ".",
+                            msg: userName + " left room",
                             roomName: roomName
                         });
                         if (!(active - 1 === 0)) return [3 /*break*/, 2];
@@ -292,7 +292,7 @@ chat.on('connection', function (socket) {
                                 name: userName_1,
                                 date: Date.now(),
                                 type: 'notice',
-                                msg: userName_1 + " left room. Active: " + active + " => " + (active - 1) + ".",
+                                msg: userName_1 + " left room",
                                 roomName: roomName
                             });
                             if (!(active - 1 === 0)) return [3 /*break*/, 2];

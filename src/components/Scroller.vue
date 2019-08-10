@@ -20,26 +20,26 @@
     <div
       ref="scrollBarX"
       :style="scrollerBarStyleX"
-      @mousedown.stop="scrollBarMouseDown($event, 'sliderX')"
-      @mouseup="scrollBarAnimateCancelHandle"
+      @mousedown.left.stop="scrollBarMouseDown($event, 'sliderX')"
+      @mouseup.left="scrollBarAnimateCancelHandle"
       @mouseleave="scrollBarAnimateCancelHandle"
     >
       <div
         :style="scrollerSliderStyleX"
-        @mousedown.stop="sliderMouseDown($event, 'sliderX')"
+        @mousedown.left.stop="sliderMouseDown($event, 'sliderX')"
         @dragstart="(e) => e.preventDefault()"
       ></div>
     </div>
     <div
       ref="scrollBarY"
       :style="scrollerBarStyleY"
-      @mousedown.stop="scrollBarMouseDown($event, 'sliderY')"
-      @mouseup="scrollBarAnimateCancelHandle"
+      @mousedown.left.stop="scrollBarMouseDown($event, 'sliderY')"
+      @mouseup.left="scrollBarAnimateCancelHandle"
       @mouseleave="scrollBarAnimateCancelHandle"
     >
       <div
         :style="scrollerSliderStyleY"
-        @mousedown.stop="sliderMouseDown($event, 'sliderY')"
+        @mousedown.left.stop="sliderMouseDown($event, 'sliderY')"
         @dragstart="(e) => e.preventDefault()"
       ></div>
     </div>
@@ -234,42 +234,44 @@ export default class Scroller extends Vue {
   }
   get scrollerBarStyleX (): any {
     let { scrollerBarStyleX, autoHiddenScrollerX, enableScrollerX } = this.mixingOption
-    let { isOverFlowX, isMouseOver, isEventActive } = this
+    let { isOverFlowX, isMouseOver, isEventActive, isInTransition } = this
 
     return Object.assign({}, scrollerBarStyleX, {
       display: enableScrollerX && isOverFlowX ? 'block' : 'none',
 
-      opacity: autoHiddenScrollerX && !isMouseOver && !isEventActive ? 0 : 1,
+      opacity: autoHiddenScrollerX && !isMouseOver && !isEventActive && !isInTransition ? 0 : 1,
     })
   }
   get scrollerBarStyleY (): any {
     let { scrollerBarStyleY, autoHiddenScrollerY, enableScrollerY } = this.mixingOption
-    let { isOverFlowY, isMouseOver, isEventActive } = this
+    let { isOverFlowY, isMouseOver, isEventActive, isInTransition } = this
 
     return Object.assign({}, scrollerBarStyleY, {
       display: enableScrollerY && isOverFlowY ? 'block' : 'none',
 
-      opacity: autoHiddenScrollerY && !isMouseOver && !isEventActive ? 0 : 1,
+      opacity: autoHiddenScrollerY && !isMouseOver && !isEventActive && !isInTransition ? 0 : 1,
     })
   }
   get scrollerSliderStyleX (): any {
     let { scrollerSliderStyleX } = this.mixingOption
-    let { sliderWidth, sliderOffsetLeft } = this
+    let { sliderWidth, sliderOffsetLeft, isInTransition } = this
 
     return Object.assign({}, scrollerSliderStyleX, {
       width: `${sliderWidth}px`,
 
       transform: `translate3d(${Math.round(sliderOffsetLeft)}px, 0, 0)`,
+      transition: isInTransition ? 'transform .4s cubic-bezier(.25, .46, .45, .94) 0s' : '',
     })
   }
   get scrollerSliderStyleY (): any {
     let { scrollerSliderStyleY } = this.mixingOption
-    let { sliderHeight, sliderOffsetTop } = this
+    let { sliderHeight, sliderOffsetTop, isInTransition } = this
     
     return Object.assign({}, scrollerSliderStyleY, {
       height: `${sliderHeight}px`,
 
       transform: `translate3d(0, ${Math.round(sliderOffsetTop)}px, 0)`,
+      transition: isInTransition ? 'transform .4s cubic-bezier(.25, .46, .45, .94) 0s' : '',
     })
   }
   get scrollerContentStyle (): any {
@@ -305,10 +307,10 @@ export default class Scroller extends Vue {
       sliderScrollHeight: newSliderScrollHeight,
       setScrollLeft, setScrollTop } = this
     
-    if (sliderScrollWidth - newSliderScrollWidth !== 0) {
+    if (sliderScrollWidth !== newSliderScrollWidth) {
       setScrollLeft((sliderOffsetLeft / sliderScrollWidth || 0) * newSliderScrollWidth)
     }
-    if (sliderScrollHeight - newSliderScrollHeight !== 0) {
+    if (sliderScrollHeight !== newSliderScrollHeight) {
       setScrollTop((sliderOffsetTop / sliderScrollHeight || 0) * newSliderScrollHeight)
     }
   }
@@ -479,8 +481,7 @@ export default class Scroller extends Vue {
       case 'sliderX':
         scrollBarAnimateCancelHandle = animate({
           end: endX,
-          time: 150,
-          fps: 240,
+          step: endX > 0 ? 8 : -8,
           callback: (currentStep: number) => {
             setScrollLeft(Math.max(sliderOffsetLeft + currentStep, 0))
           }
@@ -489,8 +490,7 @@ export default class Scroller extends Vue {
       case 'sliderY':
         scrollBarAnimateCancelHandle = animate({
           end: endY,
-          time: 150,
-          fps: 240,
+          step: endY > 0 ? 8 : -8,
           callback: (currentStep: number) => {
             setScrollTop(Math.max(sliderOffsetTop + currentStep, 0))
           }
@@ -606,11 +606,11 @@ export default class Scroller extends Vue {
       let distanceX = touchEndFingerPositionX - touchStartFingerPositionX
       let distanceY = touchEndFingerPositionY - touchStartFingerPositionY
       if (timeDistance < 300) {
-        if (isOverFlowX && Math.abs(distanceX) > 100) {
+        if (isOverFlowX && Math.abs(distanceX) > 15) {
           this.isInTransition = true
           setTranslateX(touchStartContentPositionX + distanceX * 3)
         }
-        if (isOverFlowY && Math.abs(distanceY) > 100) {
+        if (isOverFlowY && Math.abs(distanceY) > 15) {
           this.isInTransition = true
           setTranslateY(touchStartContentPositionY + distanceY * 3)
         }

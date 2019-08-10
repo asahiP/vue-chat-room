@@ -95,7 +95,7 @@ chat.on('connection', socket => {
       name: userName,
       date: Date.now(),
       type: 'notice',
-      msg: `${userName} entered room. Active: ${active} => ${active + 1}.`,
+      msg: `${userName} entered room`,
       roomName
     })
   })
@@ -113,7 +113,7 @@ chat.on('connection', socket => {
       name: userName,
       date: Date.now(),
       type: 'notice',
-      msg: `${userName} left room. Active: ${active} => ${active - 1}.`,
+      msg: `${userName} left room`,
       roomName
     })
 
@@ -213,7 +213,7 @@ chat.on('connection', socket => {
           name: userName,
           date: Date.now(),
           type: 'notice',
-          msg: `${userName} left room. Active: ${active} => ${active - 1}.`,
+          msg: `${userName} left room`,
           roomName
         })
         

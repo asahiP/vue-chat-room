@@ -7,6 +7,7 @@ interface IPromiseLike extends Promise<void> {
  * @param {number} end - End number, defalut: 100
  * @param {number} time - Animate finished time, defalut: 1000
  * @param {number} fps - Frames Per Second, default: 60
+ * @param {number} step
  * @param {function} callback - Argument is a sum number
  * @returns {Promise} A Promise Object has cancel handle
  */
@@ -15,16 +16,18 @@ export default function ({
   end = 100,
   time = 1000,
   fps = 60,
+  step,
   callback,
 }: any): IPromiseLike {
   let handle: number | undefined
+  let finished: boolean = false
   let result: any = new Promise((res, rej) => {
     function animate (timeStamp: number, elapsed: number) {
       const frameTime = 1000 / fps
 
       // force reflash to fps
       if (elapsed > frameTime) {
-        let step = end / (time / frameTime)
+        step = step || end / (time / frameTime)
 
         if (typeof callback === 'function') {
           start += step
@@ -36,7 +39,7 @@ export default function ({
         elapsed = 0
       }
 
-      if (Math.abs(end) > Math.abs(start)) {
+      if (Math.abs(end) > Math.abs(start) && !finished) {
         handle && window.cancelAnimationFrame(handle)
         handle = window.requestAnimationFrame(
           _timeStamp => animate(_timeStamp, elapsed + _timeStamp - timeStamp)
@@ -45,6 +48,7 @@ export default function ({
         if (Math.abs(start) - Math.abs(end) > 1e-5) {
           callback(end)
         }
+        finished = true
         res()
       }
     }
@@ -55,6 +59,7 @@ export default function ({
   })
 
   result.cancel = () => {
+    finished = true
     handle && window.cancelAnimationFrame(handle)
     return Promise.resolve()
   }
