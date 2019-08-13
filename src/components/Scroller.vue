@@ -286,7 +286,8 @@ export default class Scroller extends Vue {
   getComputedStyle (): void {
     let { scrollerContainer, scrollerContent, scrollBarX, scrollBarY }: any = this.$refs
     let { sliderScrollWidth, sliderScrollHeight,
-      sliderOffsetLeft, sliderOffsetTop } = this
+      sliderOffsetLeft, sliderOffsetTop,
+      containerWidth, containerHeight } = this
 
     this.containerWidth = scrollerContainer.offsetWidth
     this.containerHeight = scrollerContainer.offsetHeight
@@ -295,23 +296,29 @@ export default class Scroller extends Vue {
     this.contentWidth = scrollerContent.scrollWidth
     this.contentHeight = scrollerContent.scrollHeight
 
-    let { containerWidth, contentWidth, containerHeight, contentHeight, mixingOption } = this
+    let { containerWidth: newContainerWidth, contentWidth,
+      containerHeight: newContainerHeight, contentHeight, mixingOption } = this
     let { minScrollSliderSize } = mixingOption
-    let scrollerSliderWidth = (containerWidth / contentWidth || 0) * containerWidth
-    let scrollerSliderHeight = (containerHeight / contentHeight || 0) * containerHeight
+    let scrollerSliderWidth = (newContainerWidth / contentWidth || 0) * newContainerWidth
+    let scrollerSliderHeight = (newContainerHeight / contentHeight || 0) * newContainerHeight
     
     this.sliderWidth = Math.max(scrollerSliderWidth, minScrollSliderSize)
     this.sliderHeight = Math.max(scrollerSliderHeight, minScrollSliderSize)
 
     let { sliderScrollWidth: newSliderScrollWidth,
       sliderScrollHeight: newSliderScrollHeight,
-      setScrollLeft, setScrollTop } = this
+      setScrollLeft, setScrollTop,
+      syncScrollLeft, syncScrollTop } = this
     
-    if (sliderScrollWidth !== newSliderScrollWidth) {
+    if (containerWidth !== newContainerWidth) {
       setScrollLeft((sliderOffsetLeft / sliderScrollWidth || 0) * newSliderScrollWidth)
+    } else {
+      syncScrollLeft()
     }
-    if (sliderScrollHeight !== newSliderScrollHeight) {
+    if (containerHeight !== newContainerHeight) {
       setScrollTop((sliderOffsetTop / sliderScrollHeight || 0) * newSliderScrollHeight)
+    } else {
+      syncScrollTop()
     }
   }
 
