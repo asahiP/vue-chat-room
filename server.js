@@ -1,9 +1,10 @@
 "use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
         function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
@@ -45,7 +46,13 @@ var __rest = (this && this.__rest) || function (s, e) {
         }
     return t;
 };
-var _this = this;
+var __spreadArrays = (this && this.__spreadArrays) || function () {
+    for (var s = 0, i = 0, il = arguments.length; i < il; i++) s += arguments[i].length;
+    for (var r = Array(s), k = 0, i = 0; i < il; i++)
+        for (var a = arguments[i], j = 0, jl = a.length; j < jl; j++, k++)
+            r[k] = a[j];
+    return r;
+};
 exports.__esModule = true;
 var Koa = require("koa2");
 var KoaStatic = require("koa-static");
@@ -72,7 +79,7 @@ var roomList = {};
 var userList = new Map();
 // Map<roomName, roomPass>
 var roomMap = new Map();
-router.get('/', function (ctx, next) { return __awaiter(_this, void 0, void 0, function () {
+router.get('/', function (ctx, next) { return __awaiter(void 0, void 0, void 0, function () {
     var html;
     return __generator(this, function (_a) {
         switch (_a.label) {
@@ -87,7 +94,7 @@ router.get('/', function (ctx, next) { return __awaiter(_this, void 0, void 0, f
         }
     });
 }); });
-router.post('/createRoom', function (ctx, next) { return __awaiter(_this, void 0, void 0, function () {
+router.post('/createRoom', function (ctx, next) { return __awaiter(void 0, void 0, void 0, function () {
     var room, pass, profile, name;
     return __generator(this, function (_a) {
         switch (_a.label) {
@@ -108,7 +115,7 @@ router.post('/createRoom', function (ctx, next) { return __awaiter(_this, void 0
         }
     });
 }); });
-router.post('/joinPrivateRoom', function (ctx, next) { return __awaiter(_this, void 0, void 0, function () {
+router.post('/joinPrivateRoom', function (ctx, next) { return __awaiter(void 0, void 0, void 0, function () {
     var _a, token, roomName, result;
     return __generator(this, function (_b) {
         switch (_b.label) {
@@ -148,7 +155,7 @@ chat.on('connection', function (socket) {
         var active = activeUser.get(roomName) || 0;
         activeUser.set(roomName, active + 1);
         var roomlist = userList.get(uid) || [];
-        userList.set(uid, roomlist.concat([roomName]));
+        userList.set(uid, __spreadArrays(roomlist, [roomName]));
         socket.join(roomName);
         chat["in"](roomName).emit('onMessage', {
             uid: uid,
@@ -161,7 +168,7 @@ chat.on('connection', function (socket) {
     });
     socket.on('leave', function (_a) {
         var uid = _a.uid, roomName = _a.roomName, userName = _a.userName;
-        return __awaiter(_this, void 0, void 0, function () {
+        return __awaiter(void 0, void 0, void 0, function () {
             var active, roomlist, roomPath;
             return __generator(this, function (_b) {
                 switch (_b.label) {
@@ -192,7 +199,7 @@ chat.on('connection', function (socket) {
             });
         });
     });
-    socket.on('send', function (data) { return __awaiter(_this, void 0, void 0, function () {
+    socket.on('send', function (data) { return __awaiter(void 0, void 0, void 0, function () {
         var type, roomName, msg, _a, MD5, src, roomPath, imgPath, fileHead8Byte, fileHead4Byte, fileHead2Byte, jpegFileHeadArr, pngFileHead, gifFileHead, webpFileHead, bmpFileHead, MIMEType, e_1, e_2;
         return __generator(this, function (_b) {
             switch (_b.label) {
@@ -279,7 +286,7 @@ chat.on('connection', function (socket) {
         var map = userMap.get(socket.id);
         if (map) {
             var userName_1 = map.name, uid_1 = map.uid;
-            userList.get(uid_1).forEach(function (roomName) { return __awaiter(_this, void 0, void 0, function () {
+            userList.get(uid_1).forEach(function (roomName) { return __awaiter(void 0, void 0, void 0, function () {
                 var active, roomPath;
                 return __generator(this, function (_a) {
                     switch (_a.label) {

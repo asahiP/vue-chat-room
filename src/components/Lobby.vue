@@ -27,12 +27,7 @@
       </div>
       <div class="layout-left-roomlist" @click="goRoom">
         <p class="layout-no-item" v-show="!roomlist.length">No more Data</p>
-        <Scroller
-          :customOption="Object.assign(
-            scrollerOption,
-            { scrollerSliderStyleY: { background: 'rgb(105, 108, 117)' } }
-          )"
-        >
+        <Scroller>
           <div class="layout-left-room" v-for="{ name, title, host, hostID, icon, isLock, hasUnread } in roomlist" :key="name">
             <div
               :class="[
@@ -66,7 +61,7 @@
     <div class="layout-right" :style="lobbyArea">
       <div class="layout-right-lobby-container">
         <p class="layout-no-item" v-show="!lobby.length">No more Data</p>
-        <Scroller :customOption="scrollerOption">
+        <Scroller>
           <div class="layout-right-lobby" @click="goRoom">
             <div v-for="{ name, title, host, hostID, icon, isLock } in lobby" :key="name" class="layout-right-room">
               <div class="room-area" :data-v-name="name">
@@ -99,7 +94,6 @@
       </div>
       <div class="layout-right-chat-container">
         <Scroller
-          :customOption="scrollerOption"
           ref="chatRoom"
         >
           <div
@@ -149,7 +143,7 @@
         </Scroller>
       </div>
       <div class="layout-right-chat-textarea">
-        <textarea class="chat-textarea" v-model="textArea" ref="textArea" @keypress.ctrl.enter="sendText"></textarea>
+        <textarea class="chat-textarea" v-model="textArea" ref="textArea"></textarea>
       </div>
       <div class="layout-right-menubar">
         <div class="menubar-left-container">
@@ -272,7 +266,7 @@
 
 <script lang="ts">
 import { Component, Prop, Vue, Watch } from 'vue-property-decorator'
-import Scroller from './Scroller.vue'
+import Scroller from './Scroll.vue'
 import CheckBox from './CheckBox.vue'
 import Alert from './Alert.vue'
 import ViewerContainer from './ViewerContainer.vue'
@@ -290,9 +284,6 @@ import io from 'socket.io-client'
   }
 })
 export default class Lobby extends Vue {
-  scrollerOption = {
-    scrollerBarStyleY: { background: 'transparent' }
-  }
 
   searchKeyWord: string = ''
   searchBarFocused: boolean = false
@@ -321,8 +312,8 @@ export default class Lobby extends Vue {
 
   joinRoomToken: string = ''
 
-  socketOfLobby: SocketIOClient.Socket = io({ path: '/lobby' })
-  socketOfChat: SocketIOClient.Socket = io({ path: '/chat' })
+  socketOfLobby: SocketIOClient.Socket = io({ path: '/demo/chat-room/lobby' })
+  socketOfChat: SocketIOClient.Socket = io({ path: '/demo/chat-room/chat' })
   
   alert: Function = () => {}
 
@@ -1037,12 +1028,12 @@ $public-font-family: (Arial, Helvetica, sans-serif, 'Source Han Sans', 'Noto San
   .layout-right-lobby {
     display: flex;
     justify-content: flex-start;
-    align-items: center;
+    align-items: flex-start;
     flex-direction: row;
     flex-wrap: wrap;
     flex: 0 1 100%;
 
-    height: 100%;
+    overflow: hidden;
 
     @media all and (orientation: portrait) {
         height: 92%;
@@ -1307,6 +1298,7 @@ $public-font-family: (Arial, Helvetica, sans-serif, 'Source Han Sans', 'Noto San
 
     width: 100%;
     height: 100%;
+    overflow: hidden;
 
     box-sizing: border-box;
 
